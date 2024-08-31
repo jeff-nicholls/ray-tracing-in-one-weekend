@@ -16,7 +16,7 @@ OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 # flags
 CXX = g++
 CPPFLAGS =
-CXXFLAGS = -g
+CXXFLAGS = -g -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Wsign-conversion -Werror -std=c++17
 LDFLAGS =
 
 # output image
