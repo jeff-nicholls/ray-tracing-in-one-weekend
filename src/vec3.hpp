@@ -1,98 +1,117 @@
 #pragma once
 
+#include <array>
+#include <cassert>
 #include <cmath>
+#include <cstddef>
 #include <iostream>
 
-class vec3 {
-    public:
-        double e[3];
+class Vec3 {
+   public:
+    static constexpr size_t DIMENSIONS = 3;
 
-        vec3()
-            : e{0,0,0} {}
-        vec3(double e0, double e1, double e2)
-            : e{e0,e1,e2} {}
+    Vec3() : elements{0, 0, 0} {}
 
-        double x() const { return e[0]; }
-        double y() const { return e[1]; }
-        double z() const { return e[2]; }
+    Vec3(double element0, double element1, double element2)
+        : elements{element0, element1, element2} {}
 
-        vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
-        double operator[](int i) const { return e[i]; }
-        double& operator[](int i) { return e[i]; }
+    [[nodiscard]] double x() const { return elements[0]; }
+    [[nodiscard]] double y() const { return elements[1]; }
+    [[nodiscard]] double z() const { return elements[2]; }
 
-        vec3& operator*=(double t) {
-            e[0] *= t;
-            e[1] *= t;
-            e[2] *= t;
-            return *this;
-        }
+    [[nodiscard]] double length() const { return std::sqrt(length_squared()); }
 
-        vec3& operator/=(double t) {
-            return *this *= 1/t;
-        }
+    [[nodiscard]] double length_squared() const {
+        return (this->elements[0] * this->elements[0]) + (this->elements[1] * this->elements[1]) +
+               (this->elements[2] * this->elements[2]);
+    }
 
-        double length() const {
-            return std::sqrt(length_squared());
-        }
+    Vec3 operator-() const { return {-this->elements[0], -this->elements[1], -this->elements[2]}; }
 
-        double length_squared() const {
-            return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
-        }
+    double& operator[](size_t idx) {
+        assert(idx < DIMENSIONS);
+        return elements.at(idx);
+    }
+
+    double const& operator[](size_t idx) const {
+        assert(idx < DIMENSIONS);
+        return elements.at(idx);
+    }
+    Vec3& operator+=(Vec3 const& vec) {
+        elements[0] += vec.elements[0];
+        elements[1] += vec.elements[1];
+        elements[2] += vec.elements[2];
+        return *this;
+    }
+
+    Vec3& operator*=(double scalar) {
+        elements[0] *= scalar;
+        elements[1] *= scalar;
+        elements[2] *= scalar;
+        return *this;
+    }
+
+    Vec3& operator/=(double scalar) {
+        assert(scalar != 0);
+        return *this *= (1 / scalar);
+    }
+
+    friend Vec3 operator+(Vec3 const& vec_a, Vec3 const& vec_b);
+    friend Vec3 operator-(Vec3 const& vec_a, Vec3 const& vec_b);
+    friend Vec3 operator*(Vec3 const& vec_a, Vec3 const& vec_b);
+    friend Vec3 operator*(double scalar, Vec3 const& vec_b);
+    friend Vec3 operator*(Vec3 const& vec_a, double scalar);
+    friend double dot(Vec3 const& vec_a, Vec3 const& vec_b);
+    friend Vec3 cross(Vec3 const& vec_a, Vec3 const& vec_b);
+
+   private:
+    std::array<double, DIMENSIONS> elements;
 };
 
-// point3 is just an alias for vec3, but useful for geometric clarity in the code
-using point3 = vec3;
+using Point3 = Vec3;
 
-// Vector Utility Functions
-
-inline std::ostream& operator<<(std::ostream& out, const vec3& v) {
-    return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
+inline std::ostream& operator<<(std::ostream& out, Vec3 const& vec) {
+    return out << vec.x() << ' ' << vec.y() << ' ' << vec.z();
 }
 
-inline vec3 operator+(const vec3& u, const vec3& v) {
-    return vec3(u.e[0] + v.e[0],
-                u.e[1] + v.e[1],
-                u.e[2] + v.e[2]);
+inline Vec3 operator+(Vec3 const& vec_a, Vec3 const& vec_b) {
+    return {vec_a.elements[0] + vec_b.elements[0], vec_a.elements[1] + vec_b.elements[1],
+            vec_a.elements[2] + vec_b.elements[2]};
 }
 
-inline vec3 operator-(const vec3& u, const vec3& v) {
-    return vec3(u.e[0] - v.e[0],
-                u.e[1] - v.e[1],
-                u.e[2] - v.e[2]);
+inline Vec3 operator-(Vec3 const& vec_a, Vec3 const& vec_b) {
+    return {vec_a.elements[0] - vec_b.elements[0], vec_a.elements[1] - vec_b.elements[1],
+            vec_a.elements[2] - vec_b.elements[2]};
 }
 
-inline vec3 operator*(const vec3& u, const vec3& v) {
-    return vec3(u.e[0] * v.e[0],
-                u.e[1] * v.e[1],
-                u.e[2] * v.e[2]);
+inline Vec3 operator*(Vec3 const& vec_a, Vec3 const& vec_b) {
+    return {vec_a.elements[0] * vec_b.elements[0], vec_a.elements[1] * vec_b.elements[1],
+            vec_a.elements[2] * vec_b.elements[2]};
 }
 
-inline vec3 operator*(double t, const vec3& v) {
-    return vec3(t * v.e[0],
-                t * v.e[1],
-                t * v.e[2]);
+inline Vec3 operator*(double scalar, Vec3 const& vec) {
+    return {scalar * vec.elements[0], scalar * vec.elements[1], scalar * vec.elements[2]};
 }
 
-inline vec3 operator*(const vec3& v, double t) {
-    return t * v;
+inline Vec3 operator*(Vec3 const& vec, double scalar) {
+    return scalar * vec;
 }
 
-inline vec3 operator/(const vec3& v, double t) {
-    return (1/t) * v;
+inline Vec3 operator/(Vec3 const& vec, double scalar) {
+    return (1 / scalar) * vec;
 }
 
-inline double dot(const vec3& u, const vec3& v) {
-    return u.e[0] * v.e[0]
-         + u.e[1] * v.e[1]
-         + u.e[2] * v.e[2];
+inline double dot(Vec3 const& vec_a, Vec3 const& vec_b) {
+    return (vec_a.elements[0] * vec_b.elements[0]) + (vec_a.elements[1] * vec_b.elements[1]) +
+           (vec_a.elements[2] * vec_b.elements[2]);
 }
 
-inline vec3 cross(const vec3& u, const vec3& v) {
-    return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
-                u.e[2] * v.e[0] - u.e[0] * v.e[2],
-                u.e[0] * v.e[1] - u.e[1] * v.e[0]);
+inline Vec3 cross(Vec3 const& vec_a, Vec3 const& vec_b) {
+    return {(vec_a.elements[1] * vec_b.elements[2]) - (vec_a.elements[2] * vec_b.elements[1]),
+            (vec_a.elements[2] * vec_b.elements[0]) - (vec_a.elements[0] * vec_b.elements[2]),
+            (vec_a.elements[0] * vec_b.elements[1]) - (vec_a.elements[1] * vec_b.elements[0])};
 }
 
-inline vec3 unit_vector(const vec3& v) {
-    return v / v.length();
+inline Vec3 unit_vector(Vec3 const& vec) {
+    return vec / vec.length();
 }

@@ -1,28 +1,21 @@
-#include "color.hpp"
-#include "vec3.hpp"
-
 #include <iostream>
 
-int main() {
-    
-    // Image
+#include "colour.hpp"
 
-    int image_width { 256 };
-    int image_height { 256 };
+int main() {
+    // Image parameters.
+    constexpr size_t IMAGE_WIDTH = 256;
+    constexpr size_t IMAGE_HEIGHT = 256;
 
     // Render
-
-    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-
-    for (int j = 0; j < image_height; j++) {
-        std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
-        for (int i = 0; i < image_width; i++) {
-            auto pixel_color = color(static_cast<double>(i)/(image_width-1),
-                                     static_cast<double>(j)/(image_height-1),
-                                     0);
-            write_color(std::cout, pixel_color);
+    std::cout << "P3\n" << IMAGE_WIDTH << ' ' << IMAGE_HEIGHT << "\n255\n";
+    for (size_t j = 0; j < IMAGE_HEIGHT; j++) {
+        std::clog << "\rScanlines remaining: " << (IMAGE_HEIGHT - j) << ' ' << std::flush;
+        for (size_t i = 0; i < IMAGE_WIDTH; i++) {
+            auto pixel_color =
+                Colour(double(i) / (IMAGE_WIDTH - 1), double(j) / (IMAGE_HEIGHT - 1), 0);
+            write_colour(std::cout, pixel_color);
         }
     }
-
     std::clog << "\rDone.                   \n";
 }

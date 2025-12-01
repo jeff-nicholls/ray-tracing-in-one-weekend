@@ -1,8 +1,2 @@
-# Compiled Object files
-/obj/*
-
-# Executables
-/bin/*
-
-# Image files
-/img/*
+build/**/*
+.vscode
