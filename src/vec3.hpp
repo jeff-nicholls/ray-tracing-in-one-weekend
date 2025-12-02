@@ -10,9 +10,9 @@ class Vec3 {
    public:
     static constexpr size_t DIMENSIONS = 3;
 
-    Vec3() : elements{0, 0, 0} {}
+    constexpr Vec3() : elements{0, 0, 0} {}
 
-    Vec3(double element0, double element1, double element2)
+    constexpr Vec3(double element0, double element1, double element2)
         : elements{element0, element1, element2} {}
 
     [[nodiscard]] double x() const { return elements[0]; }

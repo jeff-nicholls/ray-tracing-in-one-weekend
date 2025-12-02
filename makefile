@@ -1,3 +1,5 @@
+SHELL=/bin/bash
+
 # Binary and image names
 TARGET_EXEC := raytracing
 TARGET_IMG := raytracing.ppm
@@ -28,7 +30,9 @@ LDFLAGS =
 FORMAT := clang-format
 FORMAT_STYLE := {BasedOnStyle: Chromium, ColumnLimit: 100, IndentWidth: 4, QualifierAlignment: Right, Standard: c++20}
 TIDY := clang-tidy
-TIDY_CHECKS ?= -*,bugprone-*,cert-*,clang-analyzer-*,concurrency-*,cppcoreguidelines-*,hicpp-*,misc-*,modernize-*,-modernize-use-trailing-return-type,performance-*,portability-*,readability-*
+TIDY_CHECKS := -*,bugprone-*,cert-*,clang-analyzer-*,concurrency-*,cppcoreguidelines-*,-cppcoreguidelines-avoid-magic-numbers,hicpp-*,misc-*,modernize-*,-modernize-use-trailing-return-type,performance-*,portability-*,readability-*,-readability-magic-numbers
+TIDY_FILES := $(SRCS)
+TIDY_HEADER_FILTER := ^.*/src/.*$$ # All files in src directory.
 
 # Output image
 .PHONY: all
@@ -55,7 +59,8 @@ format:
 
 # Lint
 tidy:
-	$(TIDY) -checks=$(TIDY_CHECKS) $(SRCS) $(HDRS) -- $(CPPFLAGS) $(CXXFLAGS)
+	$(TIDY) -checks=$(TIDY_CHECKS) -header-filter=$(TIDY_HEADER_FILTER) $(TIDY_FILES)  \
+		-- $(CPPFLAGS) $(CXXFLAGS)
 
 # Clean
 .PHONY: clean
